@@ -1,0 +1,27 @@
+# Core dependencies
+langchain>=0.1.0
+langchain-openai>=0.0.2
+openai>=1.0.0
+python-dotenv>=1.0.0
+
+# Speech recognition
+SpeechRecognition>=3.10.0
+pyaudio>=0.2.13
+pvporcupine>=3.0.0  # Wake word detection
+openai-whisper>=20231117  # Speech-to-text
+
+# Text-to-speech
+pyttsx3>=2.90
+
+# YouTube search
+youtube-search-python>=1.6.6
+
+# Audio processing
+numpy>=1.24.0
+scipy>=1.10.0
+sounddevice>=0.4.6
+
+# Utilities
+pydantic>=2.0.0
+typing-extensions>=4.0.0
+httpx==0.27.0
