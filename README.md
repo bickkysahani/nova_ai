@@ -16,14 +16,14 @@ Nova AI is an advanced voice-controlled AI assistant that currently focuses on m
 
 ## Comparison with Siri
 
-| Feature | Siri | Nova AI |
-|---------|------|---------|
-| **Music Control** | Basic play/pause/next | Advanced control with exact song matching |
-| **YouTube Control** | Limited to basic playback | Full control including search and play |
-| **Volume Control** | Basic up/down | Precise percentage control |
-| **Command Understanding** | Limited to predefined phrases | Natural language understanding |
-| **Response Time** | Variable | Optimized for quick response |
-| **Customization** | Limited | Highly customizable |
+| Feature                   | Siri                          | Nova AI                                   |
+| ------------------------- | ----------------------------- | ----------------------------------------- |
+| **Music Control**         | Basic play/pause/next         | Advanced control with exact song matching |
+| **YouTube Control**       | Limited to basic playback     | Full control including search and play    |
+| **Volume Control**        | Basic up/down                 | Precise percentage control                |
+| **Command Understanding** | Limited to predefined phrases | Natural language understanding            |
+| **Response Time**         | Variable                      | Optimized for quick response              |
+| **Customization**         | Limited                       | Highly customizable                       |
 
 ## Prerequisites
 
@@ -33,21 +33,61 @@ Nova AI is an advanced voice-controlled AI assistant that currently focuses on m
 - Google Chrome installed (for YouTube controls)
 - OpenAI API key
 - Picovoice Access Key (for wake word detection)
+- ffmpeg (for audio processing)
+- portaudio (for microphone input)
 
 ## Installation
 
+### Automated Setup (Recommended)
+
+Run the setup script which will automatically install all dependencies and set up the environment:
+
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+The script will:
+
+- Install Homebrew if not already installed
+- Install ffmpeg and portaudio
+- Set up the Python virtual environment using uv
+- Install all Python dependencies
+- Create the necessary directories
+- Generate a template .env file
+
+After running the script, you'll need to:
+
+1. Update the .env file with your API keys
+2. Download and add the wake word model as described below
+
+### Manual Installation
+
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/nova-ai.git
 cd nova-ai
 ```
 
-2. Install uv (Python package installer and resolver):
+2. Install OS-level dependencies (using Homebrew):
+
+```bash
+# Install Homebrew if you don't have it
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install ffmpeg and portaudio
+brew install ffmpeg portaudio
+```
+
+3. Install uv (Python package installer and resolver):
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-3. Create and activate a virtual environment using uv:
+4. Create and activate a virtual environment using uv:
+
 ```bash
 uv venv
 source .venv/bin/activate  # On Unix/macOS
@@ -55,18 +95,20 @@ source .venv/bin/activate  # On Unix/macOS
 .venv\Scripts\activate  # On Windows
 ```
 
-4. Install dependencies:
+5. Install dependencies:
+
 ```bash
 uv pip install -r requirements.txt
 ```
 
-5. Create a `.env` file in the project root and add your API keys:
+6. Create a `.env` file in the project root and add your API keys:
+
 ```
 OPENAI_API_KEY=your_openai_api_key_here
 PICOVOICE_ACCESS_KEY=your_picovoice_access_key_here
 ```
 
-6. Download the wake word model:
+7. Download the wake word model:
    - Sign up for a free account at [Picovoice Console](https://console.picovoice.ai/)
    - Navigate to the Wake Word section
    - Create a new wake word model with the phrase "Hey Nova"
@@ -78,12 +120,14 @@ PICOVOICE_ACCESS_KEY=your_picovoice_access_key_here
    - Move the downloaded `.ppn` file to the `assets` directory and rename it to `hey-nova.ppn`
 
 To get your Picovoice Access Key:
+
 1. Sign up for a free account at [Picovoice Console](https://console.picovoice.ai/)
 2. Navigate to the Access Keys section
 3. Create a new access key
 4. Copy the key and paste it in your `.env` file
 
 Note: The free tier of Picovoice includes:
+
 - 100 wake word activations per month
 - Support for custom wake words
 - Real-time wake word detection
@@ -111,6 +155,7 @@ Note: The `__pycache__` directory and `.venv` directory are not shown as they ar
 ## Usage
 
 1. Start Nova AI:
+
 ```bash
 python main.py
 ```
@@ -127,6 +172,7 @@ python main.py
 ## Available Commands
 
 ### Spotify Controls
+
 - "Play [song name] on Spotify"
 - "Pause the music"
 - "Resume the music"
@@ -134,6 +180,7 @@ python main.py
 - "Previous song"
 
 ### YouTube Controls
+
 - "Play [video name] on YouTube"
 - "Pause the video"
 - "Resume the video"
@@ -141,6 +188,7 @@ python main.py
 - "Previous video"
 
 ### Volume Controls
+
 - "Volume up"
 - "Volume down"
 - "Set volume to [0-100]%"
@@ -163,10 +211,12 @@ python -m pytest tests/
 ## Troubleshooting
 
 1. **Wake Word Not Detecting**:
+
    - Ensure your microphone is properly connected and has permissions
    - Check if the wake word model is properly loaded
 
 2. **Media Controls Not Working**:
+
    - Verify that Spotify/YouTube is installed and running
    - Check if the applications have necessary permissions
 
