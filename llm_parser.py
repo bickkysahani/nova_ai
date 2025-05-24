@@ -5,13 +5,10 @@ from pydantic import BaseModel, Field
 from typing import Optional, Literal
 import os
 from dotenv import load_dotenv
-import logging
+from logger import logger
 
 # Load environment variables
 load_dotenv()
-
-# Configure logging
-logger = logging.getLogger(__name__)
 
 # Get API key from environment variable
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")

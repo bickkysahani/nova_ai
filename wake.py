@@ -3,6 +3,7 @@ import pyaudio
 import struct
 import os
 from dotenv import load_dotenv
+from logger import logger
 
 load_dotenv()
 
@@ -25,7 +26,7 @@ def detect_wake_word():
         frames_per_buffer=porcupine.frame_length,
     )
 
-    print("Listening for 'Hey Nova'...")
+    logger.info("Listening for 'Hey Nova'...")
 
     try:
         while True:
@@ -33,7 +34,7 @@ def detect_wake_word():
             pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
 
             if porcupine.process(pcm) >= 0:
-                print("Wake word detected!")
+                logger.info("Wake word detected!")
                 break
     finally:
         stream.stop_stream()

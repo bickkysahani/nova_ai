@@ -3,21 +3,10 @@ import sounddevice as sd
 import numpy as np
 import tempfile
 import os
-import logging
+from logger import logger
 from datetime import datetime
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(f'speech_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
 
 # Get API key from environment variable
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")

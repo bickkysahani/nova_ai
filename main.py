@@ -7,24 +7,12 @@ from executor import (
     pause_youtube, resume_youtube, next_youtube, previous_youtube,
     volume_up, volume_down, set_volume
 )
-import logging
-from datetime import datetime
+from logger import logger
 import os
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(f'nova_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
 
 def execute_command(command):
     if not command:
