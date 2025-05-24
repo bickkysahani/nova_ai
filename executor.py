@@ -143,8 +143,25 @@ def play_on_youtube(song_name):
         logger.debug(f"Found YouTube link: {link}")
 
         logger.info(f"Playing '{song_name}' on YouTube...")
-        webbrowser.open(link)
-        logger.info(f"Successfully opened YouTube link for '{song_name}'")
+        script = f'''
+        tell application "Google Chrome"
+            if (count of windows) = 0 then
+                make new window
+            end if
+            set theUrl to "{link}"
+            if (count of tabs of front window) = 0 then
+                make new tab at end of tabs of front window with properties {{URL:theUrl}}
+            else
+                set URL of active tab of front window to theUrl
+            end if
+            activate
+        end tell
+        '''
+        result = run_applescript(script)
+        if result.returncode == 0:
+            logger.info(f"Successfully opened YouTube link for '{song_name}' in Chrome")
+        else:
+            logger.error("Failed to open YouTube link in Chrome")
 
     except Exception as e:
         logger.error(f"Error playing on YouTube: {str(e)}", exc_info=True)
