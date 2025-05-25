@@ -1,106 +1,72 @@
-import whisper
-import sounddevice as sd
-import numpy as np
-import tempfile
 import os
 from logger import logger
 from datetime import datetime
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
+from elevenlabs.client import ElevenLabs
+import sounddevice as sd
+import numpy as np
+import tempfile
+import scipy.io.wavfile
+from io import BytesIO
 
-# Get API key from environment variable
+# Get API keys from environment variables
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+
 if not OPENAI_API_KEY:
     logger.error("OPENAI_API_KEY environment variable not set!")
+if not ELEVENLABS_API_KEY:
+    logger.error("ELEVENLABS_API_KEY environment variable not set!")
 
-logger.info("Loading Whisper model...")
-model = whisper.load_model("base")
-logger.info("Whisper model loaded successfully")
-
-def record_audio(duration=5, fs=44100):
-    logger.info(f"Starting audio recording for {duration} seconds at {fs}Hz")
-    print("🎙️ Listening...")
-    try:
-        audio = sd.rec(int(duration * fs), samplerate=fs, channels=1, dtype='int16')
-        sd.wait()
-        logger.info("Audio recording completed successfully")
-        return np.squeeze(audio)
-    except Exception as e:
-        logger.error(f"Error during audio recording: {str(e)}")
-        raise
-
-def save_audio(audio, fs):
-    logger.info("Saving audio to temporary file")
-    try:
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
-            import scipy.io.wavfile
-            scipy.io.wavfile.write(f.name, fs, audio)
-            logger.info(f"Audio saved to temporary file: {f.name}")
-            return f.name
-    except Exception as e:
-        logger.error(f"Error saving audio file: {str(e)}")
-        raise
-
-def transcribe_audio(path):
-    logger.info(f"Starting audio transcription for file: {path}")
-    print("📝 Transcribing with Whisper...")
-    try:
-        result = model.transcribe(path)
-        logger.info("Transcription completed successfully")
-        return result["text"]
-    except Exception as e:
-        logger.error(f"Error during transcription: {str(e)}")
-        raise
-
-def improve_transcription(text):
-    logger.info("Starting transcription improvement with GPT")
-    print("🤖 Sending to GPT for cleanup...")
-    try:
-        # Initialize the LLM
-        llm = ChatOpenAI(
-            model="gpt-3.5-turbo",
-            temperature=0.3,
-            api_key=OPENAI_API_KEY
-        )
-
-        # Create the prompt template
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", """You are an assistant that improves voice command transcriptions.
-Make sure the command is corrected for clarity and meaning."""),
-            ("user", "Original: {text}\nImproved:")
-        ])
-
-        # Create the chain
-        chain = prompt | llm
-
-        # Process the text
-        improved_text = chain.invoke({"text": text}).content.strip()
-
-        logger.info("Transcription improvement completed successfully")
-        return improved_text
-    except Exception as e:
-        logger.error(f"Error during transcription improvement: {str(e)}")
-        raise
+# Initialize ElevenLabs client
+client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
 def listen_to_command():
     logger.info("Starting command listening process")
     try:
-        audio = record_audio()
-        path = save_audio(audio, 44100)
-        raw = transcribe_audio(path)
-        clean = improve_transcription(raw)
-        print(f"🗣️ Raw: {raw}")
-        print(f"✨ Cleaned: {clean}")
-        logger.info(f"Command processing completed - Raw: '{raw}', Cleaned: '{clean}'")
-        return clean
+        # Record audio directly using sounddevice
+        logger.info("Recording audio...")
+        print("🎙️ Listening...")
+
+        # Record 5 seconds of audio at 44.1kHz
+        duration = 5
+        fs = 44100
+        audio = sd.rec(int(duration * fs), samplerate=fs, channels=1, dtype='int16')
+        sd.wait()
+
+        # Save audio to a temporary WAV file
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
+            scipy.io.wavfile.write(temp_file.name, fs, audio)
+
+            # Read the WAV file and create a BytesIO object
+            with open(temp_file.name, 'rb') as wav_file:
+                audio_data = BytesIO(wav_file.read())
+
+        # Convert speech to text using ElevenLabs
+        logger.info("Transcribing with ElevenLabs...")
+        print("📝 Transcribing...")
+
+        transcription = client.speech_to_text.convert(
+            file=audio_data,
+            model_id="scribe_v1",  # Model to use
+            tag_audio_events=True,  # Tag audio events like laughter, applause, etc.
+            language_code="eng",    # Language of the audio file
+            diarize=True           # Whether to annotate who is speaking
+        )
+
+        print(f"🗣️ Transcription: {transcription}")
+        logger.info(f"Command processing completed - Transcription: '{transcription}'")
+        return transcription
+
     except Exception as e:
         logger.error(f"Error in listen_to_command: {str(e)}")
         return None
     finally:
-        # Clean up temporary files
-        if 'path' in locals():
+        # Clean up the temporary file
+        if 'temp_file' in locals():
             try:
-                os.unlink(path)
-                logger.info(f"Cleaned up temporary file: {path}")
+                os.unlink(temp_file.name)
+                logger.info(f"Cleaned up temporary file: {temp_file.name}")
             except Exception as e:
                 logger.error(f"Error cleaning up temporary file: {str(e)}")

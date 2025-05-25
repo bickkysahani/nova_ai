@@ -33,6 +33,7 @@ Nova AI is an advanced voice-controlled AI assistant that currently focuses on m
 - Google Chrome installed (for YouTube controls)
 - OpenAI API key
 - Picovoice Access Key (for wake word detection)
+- ElevenLabs API key (for speech-to-text)
 - ffmpeg (for audio processing)
 - portaudio (for microphone input)
 
@@ -106,6 +107,7 @@ uv pip install -r requirements.txt
 ```
 OPENAI_API_KEY=your_openai_api_key_here
 PICOVOICE_ACCESS_KEY=your_picovoice_access_key_here
+ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
 ```
 
 7. Download the wake word model:
@@ -119,18 +121,23 @@ PICOVOICE_ACCESS_KEY=your_picovoice_access_key_here
      ```
    - Move the downloaded `.ppn` file to the `assets` directory and rename it to `hey-nova.ppn`
 
-To get your Picovoice Access Key:
+To get your API keys:
 
-1. Sign up for a free account at [Picovoice Console](https://console.picovoice.ai/)
-2. Navigate to the Access Keys section
-3. Create a new access key
-4. Copy the key and paste it in your `.env` file
+1. **Picovoice Access Key**:
+   - Sign up for a free account at [Picovoice Console](https://console.picovoice.ai/)
+   - Navigate to the Access Keys section
+   - Create a new access key
+   - Copy the key and paste it in your `.env` file
 
-Note: The free tier of Picovoice includes:
+2. **ElevenLabs API Key**:
+   - Sign up for a free account at [ElevenLabs](https://elevenlabs.io/)
+   - Navigate to your profile settings
+   - Find your API key
+   - Copy the key and paste it in your `.env` file
 
-- 100 wake word activations per month
-- Support for custom wake words
-- Real-time wake word detection
+Note: The free tiers include:
+- Picovoice: 100 wake word activations per month
+- ElevenLabs: Limited speech-to-text usage per month
 
 ## Project Structure
 
